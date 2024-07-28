@@ -196,9 +196,9 @@
      *
      * @private
      */
-    preventManualScrolling () {
+    preventAllManualScrolling () {
       const wheelEventName = 'onwheel' in this.getImageWrapperElem() ? 'wheel' : 'mousewheel'
-      this.getImageWrapperElem().addEventListener(wheelEventName, e => e.preventDefault())
+      this.getRootElem().addEventListener(wheelEventName, e => e.preventDefault())
     }
 
     /**
@@ -210,7 +210,7 @@
         .ready
         // The following routine applies only if we're animating; otherwise, the user can scroll
         .then(() => {
-          this.preventManualScrolling()
+          this.preventAllManualScrolling()
 
           const fadeOptions = { duration: 100/* ms */, iterations: 1, easing: 'ease-in' }
 
@@ -439,7 +439,7 @@
     /* eslint-disable-next-line */
     new WebcamImageViewer(
       viewerElem,
-      viewerElem.dataset.stwIvId,
+      viewerElem.dataset.stwImageId,
       webcamImageBaseUrl
     )
   })
