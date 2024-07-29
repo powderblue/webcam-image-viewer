@@ -1,3 +1,7 @@
+/* global
+  Element,
+*/
+
 (/** @param {Document} document */function (document) {
   class Validators {
     /**
@@ -36,6 +40,37 @@
       const styleElem = this.document.head.appendChild(this.document.createElement('style'))
       styleElem.innerHTML = css
     }
+
+    /**
+     * @private
+     * @param {string} html
+     * @param {Element} destElem
+     * @param {string} method
+     * @returns {Element}
+     */
+    attachHtmlTo (html, destElem, method) {
+      const templateElem = destElem.appendChild(destElem.ownerDocument.createElement('template'))
+      templateElem.innerHTML = html
+      destElem[method](templateElem.content)
+      templateElem.remove()
+
+      return method === 'append'
+        ? destElem.lastElementChild
+        : destElem.firstElementChild
+    }
+
+    /**
+     * @public
+     * @param {Element|string} elemOrHtml
+     * @param {Element} destElem
+     */
+    appendTo (elemOrHtml, destElem) {
+      if (elemOrHtml instanceof Element) {
+        return destElem.appendChild(elemOrHtml)
+      }
+
+      return this.attachHtmlTo(elemOrHtml, destElem, 'append')
+    }
   }
 
   class HtmlUtils {
@@ -71,12 +106,12 @@
     static IMAGE_ANIMATION_ID = 'stw-wiv-image'
 
     /**
-     * (Values determined through testing)
+     * Determined through testing: (1146px * 2) / 30s
      *
      * @private
      * @type {number}
      */
-    static PIXELS_PER_SEC = (1146 * 2) / 30
+    static PIXELS_PER_SEC = 76
 
     /**
      * @private
@@ -97,6 +132,15 @@
       argsCopy.unshift('stw-wiv')
 
       return HtmlUtils.bem(...argsCopy)
+    }
+
+    /**
+     * @private
+     * @param {*} something
+     * @returns {boolean}
+     */
+    static validateImageBasename (something) {
+      return Validators.nonEmptyString(something) && /^[a-zA-Z0-9]+\.[a-zA-Z]+$/.test(something)
     }
 
     /**
@@ -127,22 +171,6 @@
     /**
      * @private
      * @returns {Animation}
-     */
-    animateImage () {
-      const viewerViewportWidth = this.getRootElem().clientWidth
-      const deltaPx = this.getImageElem().clientWidth - viewerViewportWidth
-      const durationMs = ((deltaPx * 2) / WebcamImageViewer.PIXELS_PER_SEC) * 1000
-
-      return this.getImageWrapperElem().animate(
-        // (Left to right and then back again)
-        { transform: ['translateX(0)', `translateX(-${deltaPx}px)`, 'translateX(0)'] },
-        { id: WebcamImageViewer.IMAGE_ANIMATION_ID, duration: durationMs, iterations: Infinity, easing: 'linear' }
-      )
-    }
-
-    /**
-     * @private
-     * @returns {Animation}
      * @throws {Error} If the image animation is missing
      */
     getImageAnimation () {
@@ -161,24 +189,24 @@
       throw new Error('The image animation is missing')
     }
 
+    // /**
+    //  * @private
+    //  * @returns {boolean}
+    //  */
+    // animationIsActive () {
+    //   const animation = this.getImageAnimation()
+
+    //   return animation && ['running', 'paused'].includes(animation.playState)
+    // }
+
     /**
      * @private
-     * @returns {boolean}
      */
-    animationIsActive () {
-      const animation = this.getImageAnimation()
-
-      return animation && ['running', 'paused'].includes(animation.playState)
-    }
-
-    /**
-     * @private
-     */
-    handleClicked () {
-      if (!this.animationIsActive()) {
-        // (Nothing to do)
-        return
-      }
+    handleControlsClicked () {
+      // if (!this.animationIsActive()) {
+      //   // (Nothing to do)
+      //   return
+      // }
 
       const animation = this.getImageAnimation()
 
@@ -203,25 +231,76 @@
 
     /**
      * @private
+     * @returns {number}
      */
-    handleImageLoaded () {
-      this
-        .animateImage()
-        .ready
-        // The following routine applies only if we're animating; otherwise, the user can scroll
-        .then(() => {
-          this.preventAllManualScrolling()
+    calculateDelta () {
+      const viewerViewportWidth = this.getRootElem().clientWidth
 
-          const fadeOptions = { duration: 100/* ms */, iterations: 1, easing: 'ease-in' }
+      return this.getImageElem().clientWidth - viewerViewportWidth
+    }
+
+    /**
+     * @private
+     */
+    setUpControls () {
+      // Lock it down
+      this.preventAllManualScrolling()
+
+      this.getDomHelper().addStylesheet(`
+        .${WebcamImageViewer.bem()} {
+          overflow-x: auto;
+        }
+
+        .${WebcamImageViewer.bem('controls')} {
+          position: absolute;
+          left: 0;
+          top: 0;
+          right: 0;
+          bottom: 0;
+          z-index: ${this.getBaseZIndex() - 1};  /* Initially out of view */
+          opacity: 0.4;  /* (Target opacity) */
+          background-color: #000;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+        }
+
+        .${WebcamImageViewer.bem('controls')} svg {
+          height: 20%;
+          fill: #fff;
+        }
+      `)
+
+      this.getDomHelper().appendTo(`
+        <div class="${WebcamImageViewer.bem('controls')}">
+          ${WebcamImageViewer.ICONS.pause}
+        </div>`, this.getRootElem())
+
+      const oneTimeDeltaPx = this.calculateDelta()
+      // (There and back.  See animation spec, below.)
+      const totalDeltaPx = oneTimeDeltaPx * 2
+      const durationMs = (totalDeltaPx / WebcamImageViewer.PIXELS_PER_SEC) * 1000
+
+      this
+        .getImageWrapperElem()
+        .animate(
+          // (Left to right and back again)
+          { transform: ['translateX(0)', `translateX(-${oneTimeDeltaPx}px)`, 'translateX(0)'] },
+          { id: WebcamImageViewer.IMAGE_ANIMATION_ID, duration: durationMs, iterations: Infinity, easing: 'linear' }
+        )
+        .ready
+        .then(() => {
+          const controlsFadeOptions = { duration: 100/* ms */, iterations: 1, easing: 'ease-in' }
 
           this.getRootElem().addEventListener('mouseenter', () => {
-            if (!this.animationIsActive()) {
-              return
-            }
+            // if (!this.animationIsActive()) {
+            //   return
+            // }
 
             this
               .getControlsElem()
-              .animate({ opacity: ['0', this.getControlsElem().style.opacity] }, fadeOptions)
+              .animate({ opacity: ['0', this.getControlsElem().style.opacity] }, controlsFadeOptions)
               .ready
               .then(() => {
                 this.getControlsElem().style.zIndex = String(this.getBaseZIndex() + 1)
@@ -229,20 +308,20 @@
           })
 
           this.getRootElem().addEventListener('mouseleave', () => {
-            if (!this.animationIsActive()) {
-              return
-            }
+            // if (!this.animationIsActive()) {
+            //   return
+            // }
 
             this
               .getControlsElem()
-              .animate({ opacity: [this.getControlsElem().style.opacity, 0] }, fadeOptions)
+              .animate({ opacity: [this.getControlsElem().style.opacity, 0] }, controlsFadeOptions)
               .finished
               .then(() => {
                 this.getControlsElem().style.zIndex = String(this.getBaseZIndex() - 1)
               })
           })
 
-          this.getRootElem().addEventListener('click', this.handleClicked.bind(this))
+          this.getRootElem().addEventListener('click', this.handleControlsClicked.bind(this))
         })
     }
 
@@ -250,12 +329,36 @@
      * @private
      */
     setUp () {
+      const imageUrl = `${this.getImageBaseUrl()}/images/webcams/${this.getImageViewerId()}`
+
       this.getDomHelper().addStylesheet(`
         .${WebcamImageViewer.bem()} {
           position: relative;
-          overflow-x: auto;
-          overflow-y: hidden;
-          cursor: pointer;
+          overflow: hidden;
+        }
+
+        .${WebcamImageViewer.bem('', 'static')} .${WebcamImageViewer.bem('image-wrapper')} {
+          text-align: center;
+        }
+
+        .${WebcamImageViewer.bem('', 'static')} .${WebcamImageViewer.bem('image-wrapper')}::before {
+          --blur-radius: 9px;
+
+          content: "";
+          position: absolute;
+          left: 0;
+          top: 0;
+          right: 0;
+          bottom: 0;
+          z-index: -1;
+          background-image: url("${imageUrl}");
+          background-size: cover;
+          background-repeat: no-repeat;
+          -webkit-filter: blur(var(--blur-radius));
+          -moz-filter: blur(var(--blur-radius));
+          -o-filter: blur(var(--blur-radius));
+          -ms-filter: blur(var(--blur-radius));
+          filter: blur(var(--blur-radius));
         }
 
         .${WebcamImageViewer.bem('image-wrapper')},
@@ -272,39 +375,23 @@
           background-repeat: no-repeat;
           background-size: 60%;
         }
-
-        .${WebcamImageViewer.bem('controls')} {
-          position: absolute;
-          left: 0;
-          top: 0;
-          right: 0;
-          bottom: 0;
-          z-index: ${this.getBaseZIndex() - 1};  /* Initially out of view */
-          opacity: 0.4;  /* (Target opacity) */
-          background-color: #000;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-
-        .${WebcamImageViewer.bem('controls')} svg {
-          height: 20%;
-          fill: #fff;
-        }
       `)
 
       this.getRootElem().innerHTML = `
-        <div class="${WebcamImageViewer.bem('controls')}">
-          ${WebcamImageViewer.ICONS.pause}
-        </div>
-
         <div class="${WebcamImageViewer.bem('image-wrapper')}">
-          <img src="${this.getImageBaseUrl()}/images/webcams/${this.getImageViewerId()}" loading="lazy">
-        </div>
-      `
+          <img src="${imageUrl}" loading="lazy">
+        </div>`
 
       // Finish setting-up the viewer when the image has loaded
-      this.getImageElem().addEventListener('load', this.handleImageLoaded.bind(this))
+      this.getImageElem().addEventListener('load', () => {
+        const imageNeedsToBeAnimated = this.calculateDelta() > 0
+
+        if (imageNeedsToBeAnimated) {
+          this.setUpControls()
+        } else {
+          this.getRootElem().classList.add(WebcamImageViewer.bem('', 'static'))
+        }
+      })
     }
 
     /**
@@ -345,8 +432,12 @@
      * @throws {Error} If the Image Viewer ID is invalid
      */
     setImageViewerId (id) {
-      // N.B. Don't do anything more clever than this!
-      if (!Validators.alphanumericString(id)) {
+      // N.B. Keep the validation as simple as is reasonable
+      const idIsAlphanumeric = Validators.alphanumericString(id)
+      const idIsABasename = WebcamImageViewer.validateImageBasename(id)
+      const idIsValid = idIsAlphanumeric || idIsABasename
+
+      if (!idIsValid) {
         throw new Error(`The Image Viewer ID, \`${id}\`, is invalid`)
       }
 
