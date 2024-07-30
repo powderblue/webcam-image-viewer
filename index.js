@@ -276,7 +276,8 @@
         }
 
         .${WebcamImageViewer.bem('controls')} svg {
-          height: 20%;
+          height: 12%;
+          min-height: 3rem;
           fill: #fff;
         }
       `)
