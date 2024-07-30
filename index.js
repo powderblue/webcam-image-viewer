@@ -241,6 +241,15 @@
 
     /**
      * @private
+     * @returns {boolean}
+     */
+    imageNeedsToBeAnimated () {
+      // Put another way: *don't* animate if the delta is equivalent to less than 5% of the width of the image
+      return (this.calculateDelta() / this.getImageElem().clientWidth) >= 0.05
+    }
+
+    /**
+     * @private
      */
     setUpControls () {
       // Lock it down
@@ -331,12 +340,15 @@
     setUp () {
       const imageUrl = `${this.getImageBaseUrl()}/images/webcams/${this.getImageViewerId()}`
 
+      const rootInitializing = WebcamImageViewer.bem('', 'initializing')
+
       this.getDomHelper().addStylesheet(`
         .${WebcamImageViewer.bem()} {
           position: relative;
           overflow: hidden;
         }
 
+        .${rootInitializing} .${WebcamImageViewer.bem('image-wrapper')},
         .${WebcamImageViewer.bem('', 'static')} .${WebcamImageViewer.bem('image-wrapper')} {
           text-align: center;
         }
@@ -377,20 +389,22 @@
         }
       `)
 
+      this.getRootElem().classList.add(rootInitializing)
+
       this.getRootElem().innerHTML = `
         <div class="${WebcamImageViewer.bem('image-wrapper')}">
           <img src="${imageUrl}" loading="lazy">
         </div>`
 
-      // Finish setting-up the viewer when the image has loaded
+      // Finish setting-up the viewer when the image has loaded -- when we can examine the image
       this.getImageElem().addEventListener('load', () => {
-        const imageNeedsToBeAnimated = this.calculateDelta() > 0
-
-        if (imageNeedsToBeAnimated) {
+        if (this.imageNeedsToBeAnimated()) {
           this.setUpControls()
         } else {
           this.getRootElem().classList.add(WebcamImageViewer.bem('', 'static'))
         }
+
+        this.getRootElem().classList.remove(rootInitializing)
       })
     }
 
