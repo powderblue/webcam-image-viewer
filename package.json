@@ -1,12 +1,9 @@
 {
   "name": "webcam-image-viewer",
-  "description": "",
-  "version": "1.0.0",
+  "description": "JavaScript viewer for SeeTheWorld's webcam images",
+  "version": "2.3.0",
   "license": "ISC",
   "author": "Daniel Bettles <danbettles@yahoo.co.uk>",
-  "directories": {
-    "test": "tests"
-  },
   "scripts": {
     "build": "standard --ignore=dist/ && uglifyjs index.js --compress --output dist/stw-wiv.min.js"
   },
