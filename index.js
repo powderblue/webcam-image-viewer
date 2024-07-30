@@ -342,7 +342,7 @@
         }
 
         .${WebcamImageViewer.bem('', 'static')} .${WebcamImageViewer.bem('image-wrapper')}::before {
-          --blur-radius: 9px;
+          --blur-radius: 12px;
 
           content: "";
           position: absolute;
@@ -358,7 +358,7 @@
           -moz-filter: blur(var(--blur-radius));
           -o-filter: blur(var(--blur-radius));
           -ms-filter: blur(var(--blur-radius));
-          filter: blur(var(--blur-radius));
+          filter: blur(var(--blur-radius)) grayscale(50%);
         }
 
         .${WebcamImageViewer.bem('image-wrapper')},
