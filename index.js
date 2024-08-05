@@ -13,14 +13,14 @@
       return typeof something === 'string' && something.length > 0
     }
 
-    /**
-     * @public
-     * @param {*} something
-     * @returns {boolean}
-     */
-    static alphanumericString (something) {
-      return this.nonEmptyString(something) && /^[a-zA-Z0-9]+$/.test(something)
-    }
+    // /**
+    //  * @public
+    //  * @param {*} something
+    //  * @returns {boolean}
+    //  */
+    // static alphanumericString (something) {
+    //   return this.nonEmptyString(something) && /^[a-zA-Z0-9]+$/.test(something)
+    // }
   }
 
   class DomHelper {
@@ -134,29 +134,29 @@
       return HtmlUtils.bem(...argsCopy)
     }
 
-    /**
-     * @private
-     * @param {*} something
-     * @returns {boolean}
-     */
-    static validateImageBasename (something) {
-      return Validators.nonEmptyString(something) && /^[a-zA-Z0-9]+\.[a-zA-Z]+$/.test(something)
-    }
+    // /**
+    //  * @private
+    //  * @param {*} something
+    //  * @returns {boolean}
+    //  */
+    // static validateImageBasename (something) {
+    //   return Validators.nonEmptyString(something) && /^[a-zA-Z0-9]+\.[a-zA-Z]+$/.test(something)
+    // }
 
     /**
      * @public
      * @param {HTMLElement} rootElem
      * @param {string} imageViewerId
-     * @param {string} imageBaseUrl
+     * @param {string} imagesBaseUrl
      */
     constructor (
       rootElem,
       imageViewerId,
-      imageBaseUrl
+      imagesBaseUrl
     ) {
       this.setRootElem(rootElem)
       this.setImageViewerId(imageViewerId)
-      this.setImageBaseUrl(imageBaseUrl)
+      this.setImagesBaseUrl(imagesBaseUrl)
 
       const ownerDocument = this.getRootElem().ownerDocument
 
@@ -287,16 +287,16 @@
           ${WebcamImageViewer.ICONS.pause}
         </div>`, this.getRootElem())
 
-      const oneTimeDeltaPx = this.calculateDelta()
+      const oneWayDeltaPx = this.calculateDelta()
       // (There and back.  See animation spec, below.)
-      const totalDeltaPx = oneTimeDeltaPx * 2
+      const totalDeltaPx = oneWayDeltaPx * 2
       const durationMs = (totalDeltaPx / WebcamImageViewer.PIXELS_PER_SEC) * 1000
 
       this
         .getImageWrapperElem()
         .animate(
           // (Left to right and back again)
-          { transform: ['translateX(0)', `translateX(-${oneTimeDeltaPx}px)`, 'translateX(0)'] },
+          { transform: ['translateX(0)', `translateX(-${oneWayDeltaPx}px)`, 'translateX(0)'] },
           { id: WebcamImageViewer.IMAGE_ANIMATION_ID, duration: durationMs, iterations: Infinity, easing: 'linear' }
         )
         .ready
@@ -339,8 +339,11 @@
      * @private
      */
     setUp () {
-      const imageUrl = `${this.getImageBaseUrl()}/images/webcams/${this.getImageViewerId()}`
+      const imagePath = this.getImageViewerId().indexOf('://') === -1
+        ? `/${this.getImageViewerId()}`
+        : '/show-offsite?url=' + encodeURIComponent(this.getImageViewerId())
 
+      const imageUrl = this.getImagesBaseUrl() + imagePath
       const rootInitializing = WebcamImageViewer.bem('', 'initializing')
 
       this.getDomHelper().addStylesheet(`
@@ -442,19 +445,22 @@
     }
 
     /**
+     * We no longer care about what the ID looks like: at the moment it's better to leave it up to the server to decide
+     * what to do
+     *
      * @private
      * @param {string} id
      * @throws {Error} If the Image Viewer ID is invalid
      */
     setImageViewerId (id) {
-      // N.B. Keep the validation as simple as is reasonable
-      const idIsAlphanumeric = Validators.alphanumericString(id)
-      const idIsABasename = WebcamImageViewer.validateImageBasename(id)
-      const idIsValid = idIsAlphanumeric || idIsABasename
+      // // N.B. Keep the validation as simple as is reasonable
+      // const idIsAlphanumeric = Validators.alphanumericString(id)
+      // const idIsABasename = WebcamImageViewer.validateImageBasename(id)
+      // const idIsValid = idIsAlphanumeric || idIsABasename
 
-      if (!idIsValid) {
-        throw new Error(`The Image Viewer ID, \`${id}\`, is invalid`)
-      }
+      // if (!idIsValid) {
+      //   throw new Error(`The Image Viewer ID, \`${id}\`, is invalid`)
+      // }
 
       this.imageViewerId = id
     }
@@ -472,20 +478,20 @@
      * @param {string} url
      * @throws {Error} If the image base-URL is invalid
      */
-    setImageBaseUrl (url) {
+    setImagesBaseUrl (url) {
       if (!Validators.nonEmptyString(url)) {
         throw new Error('The image base-URL is invalid')
       }
 
-      this.imageBaseUrl = url
+      this.imagesBaseUrl = url
     }
 
     /**
      * @private
      * @returns {string}
      */
-    getImageBaseUrl () {
-      return this.imageBaseUrl
+    getImagesBaseUrl () {
+      return this.imagesBaseUrl
     }
 
     /**
@@ -538,7 +544,8 @@
     }
   }
 
-  const webcamImageBaseUrl = 'https://plum.powderblue.co.uk'
+  // const webcamImagesBaseUrl = 'http://images-service.dan.spongebob/images/webcams'
+  const webcamImagesBaseUrl = 'https://plum.powderblue.co.uk/images/webcams'
   const selector = '.' + WebcamImageViewer.bem()
 
   document.querySelectorAll(selector).forEach((/** @type {HTMLElement} */viewerElem) => {
@@ -546,7 +553,7 @@
     new WebcamImageViewer(
       viewerElem,
       viewerElem.dataset.stwImageId,
-      webcamImageBaseUrl
+      webcamImagesBaseUrl
     )
   })
 })(document)
