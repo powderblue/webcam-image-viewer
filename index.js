@@ -477,18 +477,27 @@
         .${names.byline},
         .${names.dateCreated} > time {
           font-size: var(--fs-sm);
-          font-weight: var(--font-weight-lighter);
+          font-weight: var(--fw-lighter);
         }
 
         .${names.title} {
           font-size: var(--fs-5);
-          font-weight: var(--font-weight-semibold);
+          font-weight: var(--fw-semibold);
         }
 
         /* Interactive elements */
         a.${names.byline},
         .${names.controls} a {
           background-color: var(--color-accent-semi);
+        }
+
+        a.${names.byline}:has(.stw-strapline) {
+          font-weight: var(--fw-normal);
+        }
+
+        a.${names.byline} .stw-strapline {
+          font-weight: var(--fw-lighter);
+          font-style: italic;
         }
 
         /* ######< Main Header ###### */
@@ -549,8 +558,8 @@
       const tplContext = { meta }
 
       const bylineHtml = typeof tplContext.meta.url === 'string'
-        ? `<a href="${tplContext.meta.url}" target="_blank" class="${this.bem('byline')}">${tplContext.meta.byLine}</a>`
-        : `<span>${tplContext.meta.byLine}</span>`
+        ? `<a href="${tplContext.meta.url}" target="_blank" class="${this.bem('byline')}">${tplContext.meta.byline}</a>`
+        : `<span>${tplContext.meta.byline}</span>`
 
       this.getRootElem().querySelector('header').innerHTML = `
         <div class="${this.bem('heading')}">
@@ -746,7 +755,7 @@
 
       // Includes base styles
       this.getDomHelper().addStylesheet(`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;400;600&display=swap');
 
         @keyframes fadeIn {
           from { opacity: 0; }
@@ -773,8 +782,9 @@
           --fs-1: calc(var(--fs-base) * 2.5);
           --fs-sm: calc(var(--fs-base) * var(--small-coef));
 
-          --font-weight-lighter: 200;
-          --font-weight-semibold: 600;
+          --fw-lighter: 200;
+          --fw-normal: 400;
+          --fw-semibold: 600;
 
           --spacer-base: 1rem;
           --spacer-1: calc(var(--spacer-base) * 0.25);
@@ -792,9 +802,9 @@
           overflow: hidden;
 
           /* Defaults: */
-          font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+          font-family: "Inter", sans-serif;
           font-size: var(--fs-base);
-          font-weight: var(--font-weight-lighter);
+          font-weight: var(--fw-normal);
           font-style: normal;
           line-height: var(--line-height-base);
         }
