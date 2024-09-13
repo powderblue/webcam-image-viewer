@@ -1,7 +1,7 @@
 {
   "name": "webcam-image-viewer",
   "description": "JavaScript viewer for SeeTheWorld's webcam images",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "license": "ISC",
   "author": "Daniel Bettles <danbettles@yahoo.co.uk>",
   "scripts": {

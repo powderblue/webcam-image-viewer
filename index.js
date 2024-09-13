@@ -810,8 +810,9 @@
         }
 
         .${names.root} a {
+          font-weight: bold;
+          text-decoration: none;
           color: inherit;
-          text-decoration: underline;
         }
 
         .${names.root} a:hover {
