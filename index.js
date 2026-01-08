@@ -547,14 +547,9 @@
 
     /**
      * @public
-     * @param {object|null} meta
+     * @param {object} meta
      */
     addMetadata (meta) {
-      if (!meta) {
-        // (For now, do nothing)
-        return
-      }
-
       const tplContext = { meta }
 
       const bylineHtml = typeof tplContext.meta.url === 'string'
@@ -714,21 +709,31 @@
     }
 
     /**
+     * @private
+     * @param {object|null} meta
+     */
+    processMetadata (meta) {
+      if (!meta) {
+        return
+      }
+
+      /** @type {ViewerOverlay} */
+      const overlay = this.getComponent('overlay')
+      overlay.addMetadata(meta)
+
+      this.getImageElem().alt = meta.alt
+    }
+
+    /**
      * The image has loaded.  Now we can get on and finish setting-up the viewer.
      *
      * @private
      */
     continueSetUp () {
       // #########> Fetch and process metadata #########
-
-      /** @type {ViewerOverlay} */
-      const overlay = this.getComponent('overlay')
-
       const nameOfCallbackForProcessingMetadata = HtmlUtils.uniqid('stwWivAddMetaToOverlay')
-      this.getWindow()[nameOfCallbackForProcessingMetadata] = overlay.addMetadata.bind(overlay)
-
+      this.getWindow()[nameOfCallbackForProcessingMetadata] = this.processMetadata.bind(this)
       this.appendChild('script').setAttribute('src', this.createImageMetadataUrl(nameOfCallbackForProcessingMetadata))
-
       // #########< Fetch and process metadata #########
 
       // Put another way: *don't* bother animating if the delta is equivalent to less than 5% of the width of the image
@@ -852,7 +857,7 @@
 
       this.getRootElem().innerHTML = `
         <div class="${names.imageWrapper}">
-          <img src="${imageUrl}" loading="lazy">
+          <img src="${imageUrl}" loading="lazy" alt="Webcam image">
         </div>
       `
 
@@ -929,7 +934,7 @@
   }
 
   const viewerBlockName = 'stw-wiv'
-  // const webcamImagesBaseUrl = 'http://images-service.dan.spongebob/images/webcams'
+  // const webcamImagesBaseUrl = 'http://images-service.spongebob/images/webcams'
   const webcamImagesBaseUrl = 'https://plum.powderblue.co.uk/images/webcams'
 
   document.querySelectorAll(`.${viewerBlockName}`).forEach((/** @type {HTMLElement} */viewerRootElem) => {
