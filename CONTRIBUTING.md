@@ -10,3 +10,6 @@ npm run build
 ```
 
 The build script also checks the JavaScript using [JavaScript Standard Style](https://standardjs.com/), so don't be surprised if the build fails; if it does, deal with any issues and then try again.
+
+> [!IMPORTANT]
+> And, SeeTheWorld...  Don't forget to update the version number in `package.json`!
