@@ -531,8 +531,14 @@
         }
 
         .${names.controls} a svg {
-          height: 100%;
           fill: var(--color-white);
+          width: 100%;
+          height: 100%;
+          padding-left: 1px;
+        }
+
+        .${names.controls} a svg.stw-icon-play {
+          padding-left: 3px;
         }
 
         /* ######< Controls ###### */
@@ -765,12 +771,6 @@
         @keyframes fadeIn {
           from { opacity: 0; }
           to { opacity: 1; }
-        }
-
-        /* Annoyingly, this particular icon is off-set slightly.  The following rule corrects that. */
-        .stw-icon-play {
-          position: relative;
-          left: 2px;
         }
 
         .${names.root},
