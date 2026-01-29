@@ -558,19 +558,31 @@
     addMetadata (meta) {
       const tplContext = { meta }
 
-      const bylineHtml = typeof tplContext.meta.url === 'string'
-        ? `<a href="${tplContext.meta.url}" target="_blank" class="${this.bem('byline')}">${tplContext.meta.byline}</a>`
-        : `<span>${tplContext.meta.byline}</span>`
+      let mainTitleHtml = ''
 
-      this.getRootElem().querySelector('header').innerHTML = `
-        <div class="${this.bem('heading')}">
-          <span class="${this.bem('title')}">${tplContext.meta.title}</span>
-          <br>
-          ${bylineHtml}
-        </div>
+      if (tplContext.meta.title) {
+        mainTitleHtml = `<span class="${this.bem('title')}">${tplContext.meta.title}</span>`
+      }
 
-        <div class="${this.bem('date-created')}"><time>${tplContext.meta.dateCreated}</time></div>
-      `
+      let bylineHtml = ''
+
+      if (tplContext.meta.byline) {
+        bylineHtml = '<br>' + (typeof tplContext.meta.url === 'string'
+          ? `<a href="${tplContext.meta.url}" target="_blank" class="${this.bem('byline')}">${tplContext.meta.byline}</a>`
+          : `<span>${tplContext.meta.byline}</span>`)
+      }
+
+      const headingHtml = mainTitleHtml !== '' || bylineHtml !== ''
+        ? `<div class="${this.bem('heading')}">${mainTitleHtml}${bylineHtml}</div>`
+        : ''
+
+      const dateHtml = tplContext.meta.dateCreated
+        ? `<div class="${this.bem('date-created')}"><time>${tplContext.meta.dateCreated}</time></div>`
+        : ''
+
+      if (headingHtml !== '' || dateHtml !== '') {
+        this.getRootElem().querySelector('header').innerHTML = headingHtml + dateHtml
+      }
 
       // "Loaded", effectively
       this.addClassBem('', 'has-meta')
@@ -727,7 +739,9 @@
       const overlay = this.getComponent('overlay')
       overlay.addMetadata(meta)
 
-      this.getImageElem().alt = meta.alt
+      if (meta.alt) {
+        this.getImageElem().alt = meta.alt
+      }
     }
 
     /**
@@ -934,7 +948,7 @@
   }
 
   const viewerBlockName = 'stw-wiv'
-  // const webcamImagesBaseUrl = 'http://images-service.spongebob/images/webcams'
+  // const webcamImagesBaseUrl = 'http://spongebob/stw-images-service/public/images/webcams'
   const webcamImagesBaseUrl = 'https://plum.powderblue.co.uk/images/webcams'
 
   document.querySelectorAll(`.${viewerBlockName}`).forEach((/** @type {HTMLElement} */viewerRootElem) => {
