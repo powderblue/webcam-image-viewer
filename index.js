@@ -14,6 +14,92 @@
     }
   }
 
+  class DateTimeUtils {
+    /**
+     * @type {number}
+     */
+    static MSECS_PER_DAY = 60 * 60 * 24 * 1000
+
+    /**
+     * Truncates in-place
+     *
+     * @private
+     * @static
+     * @param {Date} date
+     * @return {Date}
+     */
+    static truncate (date) {
+      date.setHours(0, 0, 0, 0)
+
+      return date
+    }
+
+    /**
+     * Creates a new `Date` with its time set to "00:00:00.00"
+     *
+     * @private
+     * @static
+     * @returns {Date}
+     */
+    static yesterday () {
+      const date = new Date()
+      date.setDate(date.getDate() - 1)
+
+      return this.truncate(date)
+    }
+
+    /**
+     * Creates a new `Date` with its time set to "00:00:00.00"
+     *
+     * @private
+     * @static
+     * @returns {Date}
+     */
+    static today () {
+      return this.truncate(new Date())
+    }
+
+    /**
+     * Creates a new `Date` with its time set to "00:00:00.00"
+     *
+     * @private
+     * @static
+     * @returns {Date}
+     */
+    static tomorrow () {
+      const date = new Date()
+      date.setDate(date.getDate() + 1)
+
+      return this.truncate(date)
+    }
+
+    /**
+     * @public
+     * @static
+     * @param {Date} date
+     * @returns {boolean}
+     */
+    static dateIsToday (date) {
+      const dateTs = date.getTime()
+
+      return dateTs >= this.today().getTime() &&
+        dateTs < this.tomorrow().getTime()
+    }
+
+    /**
+     * @public
+     * @static
+     * @param {Date} date
+     * @returns {boolean}
+     */
+    static dateIsYesterday (date) {
+      const dateTs = date.getTime()
+
+      return dateTs >= this.yesterday().getTime() &&
+        dateTs < this.today().getTime()
+    }
+  }
+
   class DomHelper {
     /**
      * @public
@@ -330,6 +416,13 @@
      * @constant
      * @type {string}
      */
+    static ICON_WARNING = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--!Font Awesome Free v6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path fill="#FFC107" d="M256 32c14.2 0 27.3 7.5 34.5 19.8l216 368c7.3 12.4 7.3 27.7 .2 40.1S486.3 480 472 480L40 480c-14.3 0-27.6-7.7-34.7-20.1s-7-27.8 .2-40.1l216-368C228.7 39.5 241.8 32 256 32zm0 128c-13.3 0-24 10.7-24 24l0 112c0 13.3 10.7 24 24 24s24-10.7 24-24l0-112c0-13.3-10.7-24-24-24zm32 224a32 32 0 1 0 -64 0 32 32 0 1 0 64 0z"/></svg>'
+
+    /**
+     * @public
+     * @constant
+     * @type {string}
+     */
     static SRC_STW_LOGO = 'data:image/svg+xml;base64,PHN2ZyBpZD0iR3JleSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB3aWR0aD0iMTc5LjcyIiBoZWlnaHQ9IjE1Ljk5IiB2aWV3Qm94PSIwIDAgMTc5LjcyIDE1Ljk5Ij48ZGVmcz48c3R5bGU+LmNscy0xLC5jbHMtMntmaWxsOiNlZDI1NTk7fS5jbHMtMXtmaWxsLXJ1bGU6ZXZlbm9kZDt9LmNscy0ze2ZpbGw6IzNiNDI0OTt9PC9zdHlsZT48L2RlZnM+PHRpdGxlPnNlZXRoZXdvcmxkLWxvZ288L3RpdGxlPjxnIGlkPSJzZWUiPjxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTIxLDEzLjI3YTIuODYsMi44NiwwLDAsMS0yLjY3LDIuNDZIOC4xNmMtLjg3LS4xNS0yLjQ1LS45NC0yLjUzLTJhMTUuMDYsMTUuMDYsMCwwLDAsNS4wNiwxLjQ1YzIuNjcsMCw4LjE2LTIuMzksMTAuMzMtNC4zM1pNMTguMTMuMjdDMTkuNDMuNDIsMjEsMSwyMSwyLjUxVjguMzZjLTEuNDUsMi43NS03Ljg4LDUuMjctMTAuNCw1LjI3QzcuOCwxMy42MywyLDEwLjQ1LDAsNy44NWwxLjA4LS4yMWMuMzYtLjA4LjczLS4yOSwxLjA5LS4zNkM0LjY5LDYuNDgsOCwyLjQ0LDEwLjExLDIuNDRjMS41OSwwLDYuNTcsMi4yNCw2LjU3LDQuODRTMTIsMTAuNzQsMTEuMDUsMTAuNzRBMi43MywyLjczLDAsMCwxLDguMTYsOCwyLDIsMCwwLDEsOS44OSw1LjgzYTIuMDcsMi4wNywwLDAsMC0xLjUxLDJBMi4zLDIuMywwLDAsMCwxMC42OSwxMGEyLjYzLDIuNjMsMCwwLDAsMi41My0yLjc0LDMsMywwLDAsMC0zLjExLTNBMy41MywzLjUzLDAsMCwwLDYuNzIsOCw0LjMxLDQuMzEsMCwwLDAsMTEsMTIuMjZjMS45NSwwLDcuMTUtMS41Miw3LjE1LTUsMC0zLjc2LTUuODUtNi4yOS04LTYuMjktMS41MiwwLTIuODIuODctNC40OCwyLjI0VjIuMTVDNS43OC44NSw3LjQ0LjI3LDguMzguMjdaIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgwIC0wLjAxKSIvPjwvZz48cGF0aCBjbGFzcz0iY2xzLTIiIGQ9Ik0yNy42NSwxNmE5Ljg2LDkuODYsMCwwLDEtMy44NS0uNjgsNy45LDcuOSwwLDAsMS0yLjY5LTEuNzhsMS43OC0yLjVBNy4xMSw3LjExLDAsMCwwLDI1LDEyLjUyYTYuMzUsNi4zNSwwLDAsMCwyLjg1LjYxLDMuMjQsMy4yNCwwLDAsMCwyLS41MiwxLjUsMS41LDAsMCwwLC42Ni0xLjE5LDEsMSwwLDAsMC0uMjYtLjcxLDIuMjcsMi4yNywwLDAsMC0uNjgtLjUsNS41Myw1LjUzLDAsMCwwLTEtLjM2bC0xLjE5LS4zMWMtLjY0LS4xNC0xLjI5LS4zMS0yLS41YTcuNDgsNy40OCwwLDAsMS0xLjg3LS44QTQuMjQsNC4yNCwwLDAsMSwyMi4xNCw2LjlhMy44NSwzLjg1LDAsMCwxLS41NS0yLjE2QTQuMTUsNC4xNSwwLDAsMSwyMiwyLjkyYTQuNiw0LjYsMCwwLDEsMS4xNi0xLjQ5QTUuMiw1LjIsMCwwLDEsMjUsLjQxLDcuNTYsNy41NiwwLDAsMSwyNy40NiwwYTguNTQsOC41NCwwLDAsMSw2LDIuMTZMMzEuNjYsNC42YTYuMTMsNi4xMywwLDAsMC0yLjE0LTEuMjksNy4xOCw3LjE4LDAsMCwwLTIuMzYtLjQsMi42NywyLjY3LDAsMCwwLTEuNjQuNDNBMS4zMiwxLjMyLDAsMCwwLDI1LDQuNDZhLjkzLjkzLDAsMCwwLC4yNC42NCwxLjg4LDEuODgsMCwwLDAsLjY3LjQ1LDYuNzEsNi43MSwwLDAsMCwxLC4zNEwyOCw2LjE4Yy42My4xNSwxLjI5LjMzLDIsLjUyYTcuMDksNy4wOSwwLDAsMSwxLjg4LjgyLDQuNDMsNC40MywwLDAsMSwxLjM5LDEuMzcsMy44MywzLjgzLDAsMCwxLC41NSwyLjE2LDUsNSwwLDAsMS0uMzksMiw0LjE1LDQuMTUsMCwwLDEtMS4xNCwxLjU2LDUuNTIsNS41MiwwLDAsMS0xLjk0LDFBOC42Miw4LjYyLDAsMCwxLDI3LjY1LDE2WiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCAtMC4wMSkiLz48cGF0aCBjbGFzcz0iY2xzLTIiIGQ9Ik0zNC45LDE1LjczVi4yN2gxMVYzLjE2SDM4LjJWNi40M2g3LjQ5djIuOUgzOC4ydjMuNWg3LjY1djIuOVoiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAgLTAuMDEpIi8+PHBhdGggY2xhc3M9ImNscy0yIiBkPSJNNDcuMjYsMTUuNzNWLjI3aDExVjMuMTZINTAuNTZWNi40M2g3LjQ5djIuOUg1MC41NnYzLjVoNy42NXYyLjlaIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgwIC0wLjAxKSIvPjxwYXRoIGNsYXNzPSJjbHMtMyIgZD0iTTYzLjczLDE1LjczVjJINTguODRWLjI3SDcwLjU3VjJINjUuNjVWMTUuNzNaIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgwIC0wLjAxKSIvPjxwYXRoIGNsYXNzPSJjbHMtMyIgZD0iTTg0LjA5LDE1LjczVjguNjRINzV2Ny4wOUg3My4xMlYuMjdINzVWNi45Mmg5Vi4yN0g4NlYxNS43M1oiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAgLTAuMDEpIi8+PHBhdGggY2xhc3M9ImNscy0zIiBkPSJNODkuNjMsMTUuNzNWLjI3SDk5Ljc3VjJIOTEuNTZWN2g4VjguNjhoLThWMTRoOC4yMXYxLjcyWiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCAtMC4wMSkiLz48cGF0aCBjbGFzcz0iY2xzLTMiIGQ9Ik0xMTQuNjUsMTUuNzNsLTMuNC0xMi40Ny0zLjQxLDEyLjQ3aC0yLjA5TDEwMS4zNC4yN2gyLjE0bDMuNDMsMTIuODlMMTEwLjQ2LjI3aDEuNmwzLjU1LDEyLjg5TDExOSwuMjdoMi4xNGwtNC40MSwxNS40NloiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAgLTAuMDEpIi8+PHBhdGggY2xhc3M9ImNscy0zIiBkPSJNMTIyLjIxLDhjMC00LjU2LDMuMDktOCw3LjY4LThzNy42OCwzLjQ0LDcuNjgsOC0zLjExLDgtNy42OCw4UzEyMi4yMSwxMi41OCwxMjIuMjEsOFptMTMuMzYsMGMwLTMuNjEtMi4yMy02LjI4LTUuNjgtNi4yOFMxMjQuMjEsNC40LDEyNC4yMSw4czIuMiw2LjI4LDUuNjgsNi4yOFMxMzUuNTcsMTEuNiwxMzUuNTcsOFoiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAgLTAuMDEpIi8+PHBhdGggY2xhc3M9ImNscy0zIiBkPSJNMTQ5LjUzLDE1LjczbC0zLjk0LTYuMTRIMTQyLjV2Ni4xNGgtMS45MlYuMjdoNi4yMWE0LjUxLDQuNTEsMCwwLDEsNC44NSw0LjY2LDQuMjYsNC4yNiwwLDAsMS00LDQuNDlsNC4xNyw2LjMxWm0uMTItMTAuOEEyLjg4LDIuODgsMCwwLDAsMTQ2LjU2LDJIMTQyLjVWNy45aDQuMDZBMi45LDIuOSwwLDAsMCwxNDkuNjUsNC45M1oiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAgLTAuMDEpIi8+PHBhdGggY2xhc3M9ImNscy0zIiBkPSJNMTU0LjY4LDE1LjczVi4yN2gxLjkyVjE0aDcuMTl2MS43MloiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAgLTAuMDEpIi8+PHBhdGggY2xhc3M9ImNscy0zIiBkPSJNMTY2LjUsMTUuNzNWLjI3aDUuMjlBNy41Miw3LjUyLDAsMCwxLDE3OS43Miw4YzAsNC40LTMuMTMsNy43Mi03LjkzLDcuNzJaTTE3Ny43Myw4YzAtMy4zNC0yLjExLTYtNS45NC02aC0zLjM2VjE0aDMuMzZBNS42OCw1LjY4LDAsMCwwLDE3Ny43Myw4WiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCAtMC4wMSkiLz48L3N2Zz4='
   }
 
@@ -454,7 +547,7 @@
         /* With a background */
         .${names.title},
         .${names.byline},
-        .${names.dateCreated} > time,
+        .${names.dateCreated},
         .${names.controls} a {
           background-color: var(--overlay-color-body-bg);
           backdrop-filter: var(--filter-bg-obscure);
@@ -464,7 +557,7 @@
         /* Text content, inline */
         .${names.title},
         .${names.byline},
-        .${names.dateCreated} > time {
+        .${names.dateCreated} {
           padding: 0 var(--spacer-1);
         }
 
@@ -475,7 +568,7 @@
         }
 
         .${names.byline},
-        .${names.dateCreated} > time {
+        .${names.dateCreated} {
           font-size: var(--fs-sm);
           font-weight: var(--fw-lighter);
         }
@@ -498,6 +591,17 @@
         a.${names.byline} .stw-strapline {
           font-weight: var(--fw-lighter);
           font-style: italic;
+        }
+
+        .${names.dateCreated} time {
+          display: flex;
+          align-items: center;
+          gap: var(--spacer-1);
+          white-space: nowrap;
+        }
+
+        .${names.dateCreated} time svg {
+          height: 1em;
         }
 
         /* ######< Main Header ###### */
@@ -576,8 +680,24 @@
         ? `<div class="${this.bem('heading')}">${mainTitleHtml}${bylineHtml}</div>`
         : ''
 
-      const dateHtml = tplContext.meta.dateCreated
-        ? `<div class="${this.bem('date-created')}"><time>${tplContext.meta.dateCreated}</time></div>`
+      const dateCreated = new Date(tplContext.meta.dateCreated)
+      let formattedDate
+
+      if (tplContext.meta.isOutdated) {
+        const ageDays = Math.floor((Date.now() - dateCreated.getTime()) / DateTimeUtils.MSECS_PER_DAY)
+        formattedDate = `${Images.ICON_WARNING}<span>More than ${ageDays} days old</span>`
+      } else {
+        if (DateTimeUtils.dateIsToday(dateCreated)) {
+          formattedDate = `Today at ${dateCreated.toLocaleTimeString()}`
+        } else if (DateTimeUtils.dateIsYesterday(dateCreated)) {
+          formattedDate = `Yesterday at ${dateCreated.toLocaleTimeString()}`
+        } else {
+          formattedDate = dateCreated.toLocaleString()
+        }
+      }
+
+      const dateHtml = formattedDate
+        ? `<div class="${this.bem('date-created')}"><time datetime="${tplContext.meta.dateCreated}">${formattedDate}</time></div>`
         : ''
 
       if (headingHtml !== '' || dateHtml !== '') {
