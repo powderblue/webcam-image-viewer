@@ -120,11 +120,11 @@
 
     /**
      * @public
+     * @param {string} method
      * @param {string} html
      * @param {Element} destElem
-     * @param {string} method
      */
-    attachHtmlTo (html, destElem, method) {
+    attachHtmlTo (method, html, destElem) {
       const templateElem = destElem.appendChild(destElem.ownerDocument.createElement('template'))
       templateElem.innerHTML = html
       destElem[method](templateElem.content)
@@ -396,27 +396,32 @@
     }
   }
 
+  /**
+   * Note:
+   * - Paths in SVGs have `fill="currentColor"`
+   * - Some SVGs have class-names
+   */
   class Images {
     /**
      * @public
      * @constant
      * @type {string}
      */
-    static ICON_PAUSE = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><title>Pause</title><!--!Font Awesome Pro 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2024 Fonticons, Inc.--><path d="M48 96c-8.8 0-16 7.2-16 16l0 288c0 8.8 7.2 16 16 16l48 0c8.8 0 16-7.2 16-16l0-288c0-8.8-7.2-16-16-16L48 96zM0 112C0 85.5 21.5 64 48 64l48 0c26.5 0 48 21.5 48 48l0 288c0 26.5-21.5 48-48 48l-48 0c-26.5 0-48-21.5-48-48L0 112zM224 96c-8.8 0-16 7.2-16 16l0 288c0 8.8 7.2 16 16 16l48 0c8.8 0 16-7.2 16-16l0-288c0-8.8-7.2-16-16-16l-48 0zm-48 16c0-26.5 21.5-48 48-48l48 0c26.5 0 48 21.5 48 48l0 288c0 26.5-21.5 48-48 48l-48 0c-26.5 0-48-21.5-48-48l0-288z"/></svg>'
+    static ICON_PAUSE = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Pro v7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M288 96L128 96L128 544L288 544L288 96zM512 96L352 96L352 544L512 544L512 96z"/></svg>'
 
     /**
      * @public
      * @constant
      * @type {string}
      */
-    static ICON_PLAY = '<svg class="stw-icon-play" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><title>Play</title><!--!Font Awesome Pro 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2024 Fonticons, Inc.--><path d="M56.3 66.3c-4.9-3-11.1-3.1-16.2-.3s-8.2 8.2-8.2 14l0 352c0 5.8 3.1 11.1 8.2 14s11.2 2.7 16.2-.3l288-176c4.8-2.9 7.7-8.1 7.7-13.7s-2.9-10.7-7.7-13.7l-288-176zM24.5 38.1C39.7 29.6 58.2 30 73 39L361 215c14.3 8.7 23 24.2 23 41s-8.7 32.2-23 41L73 473c-14.8 9.1-33.4 9.4-48.5 .9S0 449.4 0 432L0 80C0 62.6 9.4 46.6 24.5 38.1z"/></svg>'
+    static ICON_PLAY = '<svg class="stw-icon-play" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Pro v7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M128 80L128 560L560 320L128 80z"/></svg>'
 
     /**
      * @public
      * @constant
      * @type {string}
      */
-    static ICON_WARNING = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--!Font Awesome Free v6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path fill="#FFC107" d="M256 32c14.2 0 27.3 7.5 34.5 19.8l216 368c7.3 12.4 7.3 27.7 .2 40.1S486.3 480 472 480L40 480c-14.3 0-27.6-7.7-34.7-20.1s-7-27.8 .2-40.1l216-368C228.7 39.5 241.8 32 256 32zm0 128c-13.3 0-24 10.7-24 24l0 112c0 13.3 10.7 24 24 24s24-10.7 24-24l0-112c0-13.3-10.7-24-24-24zm32 224a32 32 0 1 0 -64 0 32 32 0 1 0 64 0z"/></svg>'
+    static ICON_WARNING = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Pro v7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M320 576C461.4 576 576 461.4 576 320C576 178.6 461.4 64 320 64C178.6 64 64 178.6 64 320C64 461.4 178.6 576 320 576zM280 400L304 400L304 336L256 336L256 288L352 288L352 400L384 400L384 448L256 448L256 400L280 400zM352 256L288 256L288 192L352 192L352 256z"/></svg>'
 
     /**
      * @public
@@ -456,6 +461,99 @@
 
     /**
      * @private
+     * @constant
+     * @type {string}
+     */
+    static CN_DISABLED = 'stw-disabled'
+
+    /**
+     * @private
+     * @constant
+     * @type {string}
+     */
+    static CN_SHOW = 'stw-show'
+
+    /**
+     * @override
+     */
+    constructor (rootElem, blockName) {
+      super(rootElem, blockName)
+
+      this.timeoutHide = undefined
+    }
+
+    /**
+     * @private
+     */
+    getMainElem () {
+      return this.queryBem('main')
+    }
+
+    /**
+     * @private
+     * @return {boolean}
+     */
+    mainElemIsEnabled () {
+      return !this.getMainElem().classList.contains(ViewerOverlay.CN_DISABLED)
+    }
+
+    /**
+     * @private
+     * @return {boolean}
+     */
+    mainElemIsShown () {
+      return this.getMainElem().classList.contains(ViewerOverlay.CN_SHOW)
+    }
+
+    /**
+     * @private
+     */
+    showMainElem () {
+      if (!this.mainElemIsEnabled()) {
+        return
+      }
+
+      // Explicitly showing, so cancel any delayed hide requests
+      this.getWindow().clearTimeout(this.timeoutHide)
+      this.getMainElem().classList.add(ViewerOverlay.CN_SHOW)
+    }
+
+    /**
+     * @private
+     * @param {number} [delaySecs]
+     */
+    hideMainElem (delaySecs) {
+      if (!this.mainElemIsEnabled()) {
+        return
+      }
+
+      const hideElem = () => this.getMainElem().classList.remove(ViewerOverlay.CN_SHOW)
+
+      if (delaySecs) {
+        // (If the Main element is already due to be hidden then we needn't do anything)
+        if (!this.timeoutHide) {
+          this.timeoutHide = this.getWindow().setTimeout(hideElem, delaySecs * 1000)
+        }
+
+        return
+      }
+
+      // (We're hiding now, so cancel any pending action)
+      this.getWindow().clearTimeout(this.timeoutHide)
+      hideElem()
+    }
+
+    /**
+     * @private
+     * @param {string} method
+     * @param {string} html
+     */
+    attachHtmlToMain (method, html) {
+      this.getDomHelper().attachHtmlTo(method, html, this.getMainElem())
+    }
+
+    /**
+     * @private
      * @param {string} actionName
      * @returns {string}
      * @throws {Error} If the action-name is invalid
@@ -465,259 +563,294 @@
         throw new Error('The action-name is invalid')
       }
 
-      return `<a href="#" data-stw-action="${actionName}">${ViewerOverlay.ACTION_ICONS[actionName]}</a>`
+      return `<a href="javascript:" data-stw-action="${actionName}">${ViewerOverlay.ACTION_ICONS[actionName]}</a>`
     }
 
     /**
      * @private
      * @param {PointerEvent} e
      */
-    handleControlClicked (e) {
+    handleClicked (e) {
       const evt = new EventDecorator(e)
-      const targetElem = evt.getAnchorTarget(2)
 
-      if (!targetElem) {
-        // (No anchor target)
+      const anchorTargetElem = evt.getAnchorTarget(2)
+
+      if (anchorTargetElem) {
+        const currActionName = anchorTargetElem.dataset.stwAction
+
+        if (!currActionName) {
+          // (Standard Anchor)
+          return
+        }
+
+        // Viewer control clicked:
+
+        e.preventDefault()
+
+        this.getRootElem().dispatchEvent(new CustomEvent('seetheworld:click-control', {
+          detail: { action: currActionName }
+        }))
+
+        const nextActionName = currActionName === ViewerOverlay.ACTION_PAUSE
+          ? ViewerOverlay.ACTION_PLAY
+          : ViewerOverlay.ACTION_PAUSE
+
+        this.getDomHelper().attachHtmlTo('after', this.createControlHtml(nextActionName), anchorTargetElem)
+        anchorTargetElem.remove()
+
         return
       }
 
-      e.preventDefault()
+      // Overlay, itself, tapped:
+      if (e.pointerType !== 'mouse' && e.target === this.getRootElem()) {
+        if (this.mainElemIsShown()) {
+          this.hideMainElem()
+        } else {
+          this.showMainElem()
+        }
+      }
+    }
 
-      // #########> Toggle #########
+    /**
+     * @private
+     * @param {MouseEvent} e
+     */
+    handleMouseenter (e) {
+      e.stopPropagation()
+      this.showMainElem()
+    }
 
-      const currActionName = targetElem.dataset.stwAction
-
-      this.getRootElem().dispatchEvent(new CustomEvent('seetheworld:click-control', {
-        detail: { action: currActionName }
-      }))
-
-      const nextActionName = currActionName === ViewerOverlay.ACTION_PAUSE
-        ? ViewerOverlay.ACTION_PLAY
-        : ViewerOverlay.ACTION_PAUSE
-
-      this.getDomHelper().attachHtmlTo(this.createControlHtml(nextActionName), targetElem, 'after')
-      targetElem.remove()
-
-      // #########< Toggle #########
+    /**
+     * @private
+     * @param {MouseEvent} e
+     */
+    handleMouseleave (e) {
+      e.stopPropagation()
+      this.hideMainElem()
     }
 
     /**
      * @override
      */
     setUp () {
-      const names = {
-        root: this.bem(),
-        title: this.bem('title'),
-        byline: this.bem('byline'),
-        dateCreated: this.bem('date-created'),
+      const classNames = {
+        main: this.bem('main'),
+        article: this.bem('article'),
+        articleHeader: this.bem('article-header'),
+        articleMainHeading: this.bem('main-heading'),
+        articleOsm: this.bem('osm'),
+        articleBody: this.bem('article-body'),
         controls: this.bem('controls')
       }
 
+      const helpers = {
+        animateFadeIn: `
+          animation: fadeIn ease 0.3s;
+          animation-fill-mode: forwards;
+        `,
+        animateFadeOut: `
+          animation: fadeOut ease 0.3s;
+          animation-fill-mode: forwards;
+        `,
+        subtleLift: 'box-shadow: 0 1px 3px rgba(0, 0, 0, .3);'
+      }
+
       this.getDomHelper().addStylesheet(`
-        .${names.root} {
-          --overlay-padding: var(--spacer-3);
-          --overlay-color-body: var(--color-white);
-          --overlay-color-body-bg: var(--color-black-semi);
+        .${this.bem()} {
+          --overlay-controls-button-size: 44px;  /* WCAG 2.5.5 AAA / WCAG 2.1 */
+          --overlay-controls-icon-size: 28px;
+
+          --overlay-main-gap: var(--spacer-3);
+          --overlay-main-gap-fat: calc(var(--overlay-controls-button-size) / 2);
 
           position: absolute;
           left: 0;
           top: 0;
           right: 0;
           bottom: 0;
-          z-index: +1;
-          color: var(--overlay-color-body);
-          background: transparent;
-          padding: var(--overlay-padding);
-        }
-
-        /* ######> Main Header ###### */
-
-        .${names.root} > header {
-          display: none;
-          justify-content: space-between;
-          align-items: start;
-        }
-
-        .${this.bem('', 'has-meta')} > header {
+          z-index: var(--z-index-overlay);
           display: flex;
-          animation: fadeIn ease 2s;
-          animation-fill-mode: forwards;
+          justify-content: center;
+          align-items: end;
+          color: var(--color-white);
+          background: transparent;
         }
 
-        /* With a background */
-        .${names.title},
-        .${names.byline},
-        .${names.dateCreated},
-        .${names.controls} a {
-          background-color: var(--overlay-color-body-bg);
-          backdrop-filter: var(--filter-bg-obscure);
-          box-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        .${classNames.main} {
+          ${helpers.animateFadeOut}
+          ${helpers.subtleLift}
+          pointer-events: none;
+          display: flex;
+          flex-direction: row-reverse;
+          align-items: center;
+          backdrop-filter: blur(25px);
+          margin: var(--spacer-3);
+          padding: var(--spacer-2);
+          border: 1px solid var(--color-gray-600);
+          border-radius: var(--overlay-controls-button-size);
         }
 
-        /* Text content, inline */
-        .${names.title},
-        .${names.byline},
-        .${names.dateCreated} {
-          padding: 0 var(--spacer-1);
+        .${classNames.main}.${ViewerOverlay.CN_DISABLED} {
+          display: none;
         }
 
-        /* Text content, inline */
-        .${names.title},
-        .${names.byline} {
-          display: inline-block;  /* Tightens-up vertical whitespace */
+        .${classNames.main}.${ViewerOverlay.CN_SHOW} {
+          ${helpers.animateFadeIn}
+          pointer-events: auto;
         }
 
-        .${names.byline},
-        .${names.dateCreated} {
-          font-size: var(--fs-sm);
-          font-weight: var(--fw-lighter);
+        .${classNames.article} {
+          display: flex;
+          align-items: center;
+          margin-left: var(--overlay-main-gap);
         }
 
-        .${names.title} {
-          font-size: var(--fs-5);
+        /* When no controls */
+        .${classNames.main} > .${classNames.article}:last-child {
+          margin-left: var(--overlay-main-gap-fat);
+        }
+
+        .${classNames.articleHeader} {
+          flex: 1 0 auto;
+        }
+
+        /* When no body */
+        .${classNames.article} > .${classNames.articleHeader}:last-child {
+          margin-right: var(--overlay-main-gap-fat);
+        }
+
+        .${classNames.articleMainHeading} {
           font-weight: var(--fw-semibold);
         }
 
-        /* Interactive elements */
-        a.${names.byline},
-        .${names.controls} a {
-          background-color: var(--color-accent-semi);
+        .${classNames.articleOsm} {
+          font-size: var(--fs-sm);
         }
 
-        a.${names.byline}:has(.stw-strapline) {
-          font-weight: var(--fw-normal);
-        }
-
-        a.${names.byline} .stw-strapline {
-          font-weight: var(--fw-lighter);
-          font-style: italic;
-        }
-
-        .${names.dateCreated} time {
+        .${classNames.articleOsm} time {
           display: flex;
           align-items: center;
           gap: var(--spacer-1);
           white-space: nowrap;
         }
 
-        .${names.dateCreated} time svg {
+        .${classNames.articleOsm} time svg {
           height: 1em;
         }
 
-        /* ######< Main Header ###### */
+        .${classNames.articleBody} {
+          margin-left: var(--overlay-main-gap);
+          margin-right: var(--overlay-main-gap-fat);
+        }
 
-        /* ######> Controls ###### */
+        /* When alone in article */
+        .${classNames.article} > .${classNames.articleBody}:first-child {
+          margin-left: 0;
+        }
 
-        .${names.controls} {
-          position: absolute;
-          bottom: var(--overlay-padding);
-          width: 100%;
-          display: none;
+        .${classNames.controls} a {
+          ${helpers.subtleLift}
+          display: flex;
           justify-content: center;
           align-items: center;
+          width: var(--overlay-controls-button-size);
+          height: var(--overlay-controls-button-size);
+          color: var(--color-in-page-nav-contrast);
+          background-color: var(--color-in-page-nav);
+          border-radius: var(--overlay-controls-button-size);
         }
 
-        .${this.bem('', 'has-controls')} .${names.controls} {
-          display: flex;
-          animation: fadeIn ease 2s;
-          animation-fill-mode: forwards;
+        .${classNames.controls} a svg {
+          fill: currentColor;
+          width: var(--overlay-controls-icon-size);
+          height: var(--overlay-controls-icon-size);
         }
 
-        .${names.controls} a {
-          display: block;
-          line-height: 1;
-          width: var(--fs-1);
-          height: var(--fs-1);
-          text-align: center;
-          padding: var(--spacer-2);
-          border: 0;
-          border-radius: 50%;
-        }
-
-        .${names.controls} a svg {
-          fill: var(--color-white);
-          width: 100%;
-          height: 100%;
-          padding-left: 1px;
-        }
-
-        .${names.controls} a svg.stw-icon-play {
+        .${classNames.controls} a svg.stw-icon-play {
           padding-left: 3px;
         }
-
-        /* ######< Controls ###### */
       `)
 
-      // Just the framework for now
-      this.getRootElem().innerHTML = `
-        <header></header>
-        <div class="${names.controls}"></div>
-      `
+      // The bare minimum for now
+      this.getRootElem().innerHTML = `<div class="${classNames.main} ${ViewerOverlay.CN_DISABLED}"></div>`
+
+      this.getRootElem().addEventListener('mouseenter', this.handleMouseenter.bind(this))
+      this.getRootElem().addEventListener('mouseleave', this.handleMouseleave.bind(this))
+      this.getRootElem().addEventListener('click', this.handleClicked.bind(this))
     }
 
     /**
      * @public
-     * @param {object} meta
+     * @param {object|null} meta
      */
-    addMetadata (meta) {
-      const tplContext = { meta }
+    processMetadata (meta) {
+      if (meta) {
+        const tplContext = { meta }
 
-      let mainTitleHtml = ''
+        let headerContent = ''
 
-      if (tplContext.meta.title) {
-        mainTitleHtml = `<span class="${this.bem('title')}">${tplContext.meta.title}</span>`
-      }
+        headerContent += tplContext.meta.title
+          ? `<div class="${this.bem('main-heading')}">${tplContext.meta.title}</div>`
+          : ''
 
-      let bylineHtml = ''
+        if (tplContext.meta.dateCreated) {
+          const createdAt = new Date(tplContext.meta.dateCreated)
+          let formattedDate
 
-      if (tplContext.meta.byline) {
-        bylineHtml = '<br>' + (typeof tplContext.meta.url === 'string'
-          ? `<a href="${tplContext.meta.url}" target="_blank" class="${this.bem('byline')}">${tplContext.meta.byline}</a>`
-          : `<span>${tplContext.meta.byline}</span>`)
-      }
+          if (tplContext.meta.isOutdated) {
+            const ageDays = Math.floor((Date.now() - createdAt.getTime()) / DateTimeUtils.MSECS_PER_DAY)
+            formattedDate = `${Images.ICON_WARNING}<span>More than ${ageDays} days old</span>`
+          } else {
+            if (DateTimeUtils.dateIsToday(createdAt)) {
+              formattedDate = `Today at ${createdAt.toLocaleTimeString()}`
+            } else if (DateTimeUtils.dateIsYesterday(createdAt)) {
+              formattedDate = `Yesterday at ${createdAt.toLocaleTimeString()}`
+            } else {
+              formattedDate = createdAt.toLocaleString()
+            }
+          }
 
-      const headingHtml = mainTitleHtml !== '' || bylineHtml !== ''
-        ? `<div class="${this.bem('heading')}">${mainTitleHtml}${bylineHtml}</div>`
-        : ''
+          headerContent += formattedDate
+            ? `<div class="${this.bem('osm')}"><time datetime="${tplContext.meta.dateCreated}">${formattedDate}</time></div>`
+            : ''
+        }
 
-      const dateCreated = new Date(tplContext.meta.dateCreated)
-      let formattedDate
+        let bodyContent = ''
 
-      if (tplContext.meta.isOutdated) {
-        const ageDays = Math.floor((Date.now() - dateCreated.getTime()) / DateTimeUtils.MSECS_PER_DAY)
-        formattedDate = `${Images.ICON_WARNING}<span>More than ${ageDays} days old</span>`
-      } else {
-        if (DateTimeUtils.dateIsToday(dateCreated)) {
-          formattedDate = `Today at ${dateCreated.toLocaleTimeString()}`
-        } else if (DateTimeUtils.dateIsYesterday(dateCreated)) {
-          formattedDate = `Yesterday at ${dateCreated.toLocaleTimeString()}`
-        } else {
-          formattedDate = dateCreated.toLocaleString()
+        if (tplContext.meta.byline) {
+          bodyContent += typeof tplContext.meta.url === 'string'
+            ? `<a href="${tplContext.meta.url}" target="_blank">${tplContext.meta.byline}</a>`
+            : `<span>${tplContext.meta.byline}</span>`
+        }
+
+        const headerHtml = headerContent
+          ? `<div class="${this.bem('article-header')}">${headerContent}</div>`
+          : ''
+
+        const bodyHtml = bodyContent
+          ? `<div class="${this.bem('article-body')}">${bodyContent}</div>`
+          : ''
+
+        if (headerHtml || bodyHtml) {
+          this.attachHtmlToMain('prepend', `<div class="${this.bem('article')}">${headerHtml}${bodyHtml}</div>`)
         }
       }
 
-      const dateHtml = formattedDate
-        ? `<div class="${this.bem('date-created')}"><time datetime="${tplContext.meta.dateCreated}">${formattedDate}</time></div>`
-        : ''
-
-      if (headingHtml !== '' || dateHtml !== '') {
-        this.getRootElem().querySelector('header').innerHTML = headingHtml + dateHtml
+      if (this.getMainElem().childElementCount) {
+        this.getMainElem().classList.remove(ViewerOverlay.CN_DISABLED)
+        this.showMainElem()
+        this.hideMainElem(/* Hide after (seconds) */3)
       }
 
-      // "Loaded", effectively
-      this.addClassBem('', 'has-meta')
+      // Ready: Overlay
     }
 
     /**
      * @public
      */
     useControls () {
-      const controlsElem = this.queryBem('controls')
-      controlsElem.innerHTML = this.createControlHtml(ViewerOverlay.ACTION_PAUSE)
-      controlsElem.addEventListener('click', this.handleControlClicked.bind(this))
-
-      // "Loaded", effectively
-      this.addClassBem('', 'has-controls')
+      const controlsContent = this.createControlHtml(ViewerOverlay.ACTION_PAUSE)
+      this.attachHtmlToMain('append', `<div class="${this.bem('controls')}">${controlsContent}</div>`)
     }
   }
 
@@ -731,8 +864,6 @@
     static IMAGE_ANIMATION_ID = 'stw-wiv-image'
 
     /**
-     * Determined through testing: (1146px * 2) / 30s
-     *
      * @private
      * @type {number}
      */
@@ -790,7 +921,7 @@
      * @private
      * @param {CustomEvent} e
      */
-    handleOverlayClicked (e) {
+    handleControlClicked (e) {
       const animation = this.getImageAnimation()
       const animationIsActive = animation && ['running', 'paused'].includes(animation.playState)
 
@@ -818,12 +949,6 @@
       const wheelEventName = 'onwheel' in this.getImageWrapperElem() ? 'wheel' : 'mousewheel'
       this.getRootElem().addEventListener(wheelEventName, e => e.preventDefault())
 
-      this.getDomHelper().addStylesheet(`
-        .${this.bem()} {
-          overflow-x: auto;
-        }
-      `)
-
       const oneWayDeltaPx = this.calculateOneWayDelta()
       // (There and back.  See animation spec, below.)
       const durationMs = ((oneWayDeltaPx * 2) / Viewer.PIXELS_PER_SEC) * 1000
@@ -842,7 +967,7 @@
           /** @type {ViewerOverlay} */
           const overlay = this.getComponent('overlay')
           overlay.useControls()
-          overlay.getRootElem().addEventListener('seetheworld:click-control', this.handleOverlayClicked.bind(this))
+          overlay.getRootElem().addEventListener('seetheworld:click-control', this.handleControlClicked.bind(this))
         })
     }
 
@@ -851,21 +976,17 @@
      * @param {object|null} meta
      */
     processMetadata (meta) {
-      if (!meta) {
-        return
+      if (meta && meta.alt) {
+        this.getImageElem().alt = meta.alt
       }
 
       /** @type {ViewerOverlay} */
       const overlay = this.getComponent('overlay')
-      overlay.addMetadata(meta)
-
-      if (meta.alt) {
-        this.getImageElem().alt = meta.alt
-      }
+      overlay.processMetadata(meta)
     }
 
     /**
-     * The image has loaded.  Now we can get on and finish setting-up the viewer.
+     * The image has loaded.  Now we can continue setting-up the viewer.
      *
      * @private
      */
@@ -882,9 +1003,10 @@
       if (imageNeedsToBeAnimated) {
         this.setUpAnimation()
       } else {
-        // "Loaded", effectively
         this.addClassBem('', 'static')
       }
+
+      // Ready: Viewer
     }
 
     /**
@@ -893,37 +1015,40 @@
     setUp () {
       const imageUrl = this.createImageUrl()
 
-      const names = {
+      const classNames = {
         root: this.bem(),
         imageWrapper: this.bem('image-wrapper')
       }
 
+      const fontWeightNormal = 350
+      const fontWeightSemibold = 550
+
       // Includes base styles
       this.getDomHelper().addStylesheet(`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;400;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@${fontWeightNormal};${fontWeightSemibold}&display=swap');
 
         @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
+          from { opacity: 0; transform: scale(.97) }
+          to { opacity: 1; transform: scale(1) }
         }
 
-        .${names.root},
-        .${names.root} * {
+        @keyframes fadeOut {
+          from { opacity: 1; transform: scale(1) }
+          to { opacity: 0; transform: scale(.97) }
+        }
+
+        .${classNames.root},
+        .${classNames.root} * {
           box-sizing: border-box;
         }
 
-        .${names.root} {
-          --line-height-base: 1.5;
+        .${classNames.root} {
+          --fs-multiplier-down: 0.875;
 
-          --small-coef: 0.875;
-          --fs-base: calc(1rem * var(--small-coef));
-          --fs-5: calc(var(--fs-base) * 1.25);
-          --fs-1: calc(var(--fs-base) * 2.5);
-          --fs-sm: calc(var(--fs-base) * var(--small-coef));
+          --fs-base: calc(1rem * var(--fs-multiplier-down));
+          --fs-sm: calc(var(--fs-base) * var(--fs-multiplier-down));
 
-          --fw-lighter: 200;
-          --fw-normal: 400;
-          --fw-semibold: 600;
+          --fw-semibold: ${fontWeightSemibold};
 
           --spacer-base: 1rem;
           --spacer-1: calc(var(--spacer-base) * 0.25);
@@ -931,34 +1056,33 @@
           --spacer-3: var(--spacer-base);
 
           --color-white: #fff;
-          --color-black-semi: rgba(0,0,0,0.5);
-          --color-gray-light: #e2e2e5;
-          --color-accent-semi: rgba(225,35,84,0.9);  /* #e12354 */
+          --color-gray-600: #6c757d;
+          --color-empty: #F4F3EF;
+          --color-in-page-nav: #E8E6E1;  /* In-page nav, borders */
+          --color-in-page-nav-contrast: #201A1A;  /* Our usual body colour */
+
+          --z-index-overlay: 1;
 
           --filter-bg-obscure: blur(7px) opacity(0.85);
 
           position: relative;
-          overflow: hidden;
-
-          /* Defaults: */
+          overflow-x: auto;
           font-family: "Inter", sans-serif;
           font-size: var(--fs-base);
-          font-weight: var(--fw-normal);
-          font-style: normal;
-          line-height: var(--line-height-base);
+          font-weight: ${fontWeightNormal};
+          line-height: 1.6;
         }
 
-        .${names.root} a {
-          font-weight: bold;
-          text-decoration: none;
-          color: inherit;
+        .${classNames.root} a {
+          color: currentColor;
+          text-decoration: underline .2ex;
         }
 
-        .${names.root} a:hover {
+        .${classNames.root} a:hover {
           text-decoration: none;
         }
 
-        .${this.bem('', 'static')} .${names.imageWrapper}::before {
+        .${this.bem('', 'static')} .${classNames.imageWrapper}::before {
           content: "";
           position: absolute;
           left: 0;
@@ -966,22 +1090,22 @@
           right: 0;
           bottom: 0;
           z-index: -1;
+          overflow: hidden;
           background-image: url("${imageUrl}");
           background-size: cover;
           background-repeat: no-repeat;
           filter: var(--filter-bg-obscure);
         }
 
-        .${names.imageWrapper},
-        .${names.imageWrapper} img {
+        .${classNames.imageWrapper},
+        .${classNames.imageWrapper} img {
           height: 100%;
         }
 
-        .${names.imageWrapper} {
+        .${classNames.imageWrapper} {
           position: relative;
-          z-index: +1;
           text-align: center;
-          background-color: var(--color-gray-light);
+          background-color: var(--color-empty);
           background-image: url("${Images.SRC_STW_LOGO}");
           background-position: center center;
           background-repeat: no-repeat;
@@ -990,12 +1114,12 @@
       `)
 
       this.getRootElem().innerHTML = `
-        <div class="${names.imageWrapper}">
+        <div class="${classNames.imageWrapper}">
           <img src="${imageUrl}" loading="lazy" alt="Webcam image">
         </div>
       `
 
-      this.setComponent('overlay', new ViewerOverlay(this.appendChild('div'), `${names.root}-overlay`))
+      this.setComponent('overlay', new ViewerOverlay(this.appendChild('div'), `${classNames.root}-overlay`))
 
       this.getComponent('overlay').setUp()
 
@@ -1068,7 +1192,6 @@
   }
 
   const viewerBlockName = 'stw-wiv'
-  // const webcamImagesBaseUrl = 'http://spongebob/stw-images-service/public/images/webcams'
   const webcamImagesBaseUrl = 'https://plum.powderblue.co.uk/images/webcams'
 
   document.querySelectorAll(`.${viewerBlockName}`).forEach((/** @type {HTMLElement} */viewerRootElem) => {
