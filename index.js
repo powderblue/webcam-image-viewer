@@ -1,5 +1,6 @@
 /* global
   HTMLElement,
+  screen,
 */
 
 (/** @param {Document} document */function (document) {
@@ -893,8 +894,6 @@
 
   class Viewer extends AbstractComponent {
     /**
-     * The ID of the image animation, the 'main' animation
-     *
      * @private
      * @type {string}
      */
@@ -910,6 +909,7 @@
      * @override
      * @param {string} imageViewerId
      * @param {string} imagesBaseUrl
+     * @throws {Error} If the image base-URL is invalid
      */
     constructor (
       rootElem,
@@ -917,41 +917,101 @@
       imageViewerId,
       imagesBaseUrl
     ) {
+      if (!Validators.nonEmptyString(imagesBaseUrl)) {
+        throw new Error('The image base-URL is invalid')
+      }
+
       super(rootElem, blockName)
 
-      this.setImageViewerId(imageViewerId)
-      this.setImagesBaseUrl(imagesBaseUrl)
+      // N.B. We no longer care about what the ID looks like: at the moment it's better to leave it up to the server to
+      // decide what to do
+      this.imageViewerId = imageViewerId
+      this.imagesBaseUrl = imagesBaseUrl
     }
 
     /**
      * @private
-     * @returns {Animation}
-     * @throws {Error} If the image animation is missing
+     * @returns {HTMLElement}
+     */
+    getImageWrapperElem () {
+      return this.queryBem('image-wrapper')
+    }
+
+    /**
+     * @private
+     * @returns {HTMLImageElement}
+     */
+    getImageElem () {
+      return this.getImageWrapperElem().querySelector('img')
+    }
+
+    /**
+     * @private
+     * @returns {Animation|null}
      */
     getImageAnimation () {
-      const animations = this.getImageWrapperElem().getAnimations()
-      const numAnimations = animations.length
-      let currAnimation
-
-      for (let i = 0; i < numAnimations; i++) {
-        currAnimation = animations[i]
-
+      for (const currAnimation of this.getImageWrapperElem().getAnimations()) {
         if (currAnimation.id === Viewer.IMAGE_ANIMATION_ID) {
           return currAnimation
         }
       }
 
-      throw new Error('The image animation is missing')
+      return null
     }
 
     /**
      * @private
-     * @returns {number}
      */
-    calculateOneWayDelta () {
-      const viewerViewportWidth = this.getRootElem().clientWidth
+    clearImageAnimation () {
+      const animation = this.getImageAnimation()
 
-      return this.getImageElem().clientWidth - viewerViewportWidth
+      if (animation) {
+        animation.cancel()
+      }
+    }
+
+    /**
+     * @private
+     * @param {Function} [onReady]
+     */
+    setUpAnimation (onReady) {
+      this.clearImageAnimation()
+
+      const viewerViewportWidth = this.getRootElem().clientWidth
+      const imageWidth = this.getImageElem().clientWidth
+      const oneWayDeltaPx = imageWidth - viewerViewportWidth
+
+      // Put another way: *don't* bother animating if the delta is equivalent to less than 5% of the width of the image
+      const imageNeedsToBeAnimated = (oneWayDeltaPx / imageWidth) >= 0.05
+
+      if (!imageNeedsToBeAnimated) {
+        this.addClassBem('', 'static')
+
+        return
+      }
+
+      // (There and back.  See animation spec, below.)
+      const durationMs = ((oneWayDeltaPx * 2) / Viewer.PIXELS_PER_SEC) * 1000
+
+      this.getImageWrapperElem().animate(
+        // (Left to right and back again)
+        { transform: ['translateX(0)', `translateX(-${oneWayDeltaPx}px)`, 'translateX(0)'] },
+        { id: Viewer.IMAGE_ANIMATION_ID, duration: durationMs, iterations: Infinity, easing: 'linear' }
+      )
+
+      if (onReady) {
+        this
+          .getImageAnimation()
+          .ready
+          .then(onReady)
+      }
+    }
+
+    /**
+     * @private
+     */
+    handleOrientationChanged () {
+      this.setUpAnimation()
     }
 
     /**
@@ -968,44 +1028,13 @@
 
       switch (e.detail.action) {
         case ViewerOverlay.ACTION_PAUSE:
-          this.getImageAnimation().pause()
+          animation.pause()
           break
 
         case ViewerOverlay.ACTION_PLAY:
-          this.getImageAnimation().play()
+          animation.play()
           break
       }
-    }
-
-    /**
-     * @private
-     */
-    setUpAnimation () {
-      // Lock it down
-      // See https://stackoverflow.com/a/4770179/1063649
-      const wheelEventName = 'onwheel' in this.getImageWrapperElem() ? 'wheel' : 'mousewheel'
-      this.getRootElem().addEventListener(wheelEventName, e => e.preventDefault())
-
-      const oneWayDeltaPx = this.calculateOneWayDelta()
-      // (There and back.  See animation spec, below.)
-      const durationMs = ((oneWayDeltaPx * 2) / Viewer.PIXELS_PER_SEC) * 1000
-
-      this
-        .getImageWrapperElem()
-        .animate(
-          // (Left to right and back again)
-          { transform: ['translateX(0)', `translateX(-${oneWayDeltaPx}px)`, 'translateX(0)'] },
-          { id: Viewer.IMAGE_ANIMATION_ID, duration: durationMs, iterations: Infinity, easing: 'linear' }
-        )
-        .ready
-        .then(() => {
-          // *Now* we're ready to use the controls
-
-          /** @type {ViewerOverlay} */
-          const overlay = this.getComponent('overlay')
-          overlay.useControls()
-          overlay.getRootElem().addEventListener('seetheworld:click-control', this.handleControlClicked.bind(this))
-        })
     }
 
     /**
@@ -1023,27 +1052,48 @@
     }
 
     /**
-     * The image has loaded.  Now we can continue setting-up the viewer.
+     * @private
+     * @param {string} nameOfCallbackToProcessData
+     * @returns {string}
+     */
+    createImageMetadataUrl (nameOfCallbackToProcessData) {
+      return `${this.imagesBaseUrl}/${this.imageViewerId}/meta?callback=` + encodeURIComponent(nameOfCallbackToProcessData)
+    }
+
+    /**
+     * The image has loaded.  Now we can finish setting-up the viewer.
      *
      * @private
      */
-    continueSetUp () {
+    finishSetUp () {
       // #########> Fetch and process metadata #########
       const nameOfCallbackForProcessingMetadata = HtmlUtils.uniqid('stwWivAddMetaToOverlay')
       this.getWindow()[nameOfCallbackForProcessingMetadata] = this.processMetadata.bind(this)
       this.appendChild('script').setAttribute('src', this.createImageMetadataUrl(nameOfCallbackForProcessingMetadata))
       // #########< Fetch and process metadata #########
 
-      // Put another way: *don't* bother animating if the delta is equivalent to less than 5% of the width of the image
-      const imageNeedsToBeAnimated = (this.calculateOneWayDelta() / this.getImageElem().clientWidth) >= 0.05
-
-      if (imageNeedsToBeAnimated) {
-        this.setUpAnimation()
-      } else {
-        this.addClassBem('', 'static')
-      }
+      this.setUpAnimation(() => {
+        /** @type {ViewerOverlay} */
+        const overlay = this.getComponent('overlay')
+        overlay.useControls()
+        overlay.getRootElem().addEventListener('seetheworld:click-control', this.handleControlClicked.bind(this))
+      })
 
       // Ready: Viewer
+    }
+
+    /**
+     * @private
+     * @returns {string}
+     */
+    createImageUrl () {
+      const imageViewerId = this.imageViewerId
+
+      const imagePath = imageViewerId.indexOf('://') === -1
+        ? ('/' + imageViewerId)
+        : '/show-offsite?url=' + encodeURIComponent(imageViewerId)
+
+      return this.imagesBaseUrl + imagePath
     }
 
     /**
@@ -1170,71 +1220,14 @@
 
       this.getComponent('overlay').setUp()
 
+      // See https://stackoverflow.com/a/4770179/1063649
+      const wheelEventName = 'onwheel' in this.getImageWrapperElem() ? 'wheel' : 'mousewheel'
+      this.getRootElem().addEventListener(wheelEventName, e => e.preventDefault())
+
+      screen.orientation.addEventListener('change', this.handleOrientationChanged.bind(this))
+
       // Continue setting-up when we definitely have an image and can see what we're dealing with
-      this.getImageElem().addEventListener('load', this.continueSetUp.bind(this))
-    }
-
-    /**
-     * N.B. We no longer care about what the ID looks like: at the moment it's better to leave it up to the server to
-     * decide what to do
-     *
-     * @private
-     * @param {string} id
-     */
-    setImageViewerId (id) {
-      this.imageViewerId = id
-    }
-
-    /**
-     * @private
-     * @param {string} url
-     * @throws {Error} If the image base-URL is invalid
-     */
-    setImagesBaseUrl (url) {
-      if (!Validators.nonEmptyString(url)) {
-        throw new Error('The image base-URL is invalid')
-      }
-
-      this.imagesBaseUrl = url
-    }
-
-    /**
-     * @private
-     * @returns {string}
-     */
-    createImageUrl () {
-      const imageViewerId = this.imageViewerId
-
-      const imagePath = imageViewerId.indexOf('://') === -1
-        ? ('/' + imageViewerId)
-        : '/show-offsite?url=' + encodeURIComponent(imageViewerId)
-
-      return this.imagesBaseUrl + imagePath
-    }
-
-    /**
-     * @private
-     * @param {string} nameOfCallbackToProcessData
-     * @returns {string}
-     */
-    createImageMetadataUrl (nameOfCallbackToProcessData) {
-      return `${this.imagesBaseUrl}/${this.imageViewerId}/meta?callback=` + encodeURIComponent(nameOfCallbackToProcessData)
-    }
-
-    /**
-     * @private
-     * @returns {HTMLElement}
-     */
-    getImageWrapperElem () {
-      return this.queryBem('image-wrapper')
-    }
-
-    /**
-     * @private
-     * @returns {HTMLImageElement}
-     */
-    getImageElem () {
-      return this.getImageWrapperElem().querySelector('img')
+      this.getImageElem().addEventListener('load', this.finishSetUp.bind(this))
     }
   }
 
