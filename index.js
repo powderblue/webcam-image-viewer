@@ -638,6 +638,7 @@
         article: this.bem('article'),
         articleHeader: this.bem('article-header'),
         articleMainHeading: this.bem('main-heading'),
+        articleByline: this.bem('byline'),
         articleOsm: this.bem('osm'),
         articleBody: this.bem('article-body'),
         controls: this.bem('controls')
@@ -657,7 +658,7 @@
 
       this.getDomHelper().addStylesheet(`
         .${this.bem()} {
-          --overlay-controls-button-size: 44px;  /* WCAG 2.5.5 AAA / WCAG 2.1 */
+          --overlay-controls-button-size: 48px;  /* WCAG 2.5.5 AAA / WCAG 2.1 */
           --overlay-controls-icon-size: 28px;
 
           --overlay-main-gap: var(--spacer-3);
@@ -682,7 +683,7 @@
           pointer-events: none;
           display: flex;
           flex-direction: row-reverse;
-          align-items: center;
+          align-items: stretch;
           backdrop-filter: blur(25px);
           margin: var(--spacer-3);
           padding: var(--spacer-2);
@@ -703,6 +704,7 @@
           display: flex;
           align-items: center;
           margin-left: var(--overlay-main-gap);
+          margin-right: var(--overlay-main-gap-fat);
         }
 
         /* When no controls */
@@ -712,6 +714,9 @@
 
         .${classNames.articleHeader} {
           flex: 1 0 auto;
+          display: flex;
+          flex-direction: column;
+          height: 100%;
         }
 
         /* When no body */
@@ -723,8 +728,20 @@
           font-weight: var(--fw-semibold);
         }
 
+        .${classNames.articleMainHeading},
+        .${classNames.articleByline} {
+          flex: 0 0 auto;
+        }
+
+        .${classNames.articleByline},
         .${classNames.articleOsm} {
           font-size: var(--fs-sm);
+        }
+
+        .${classNames.articleOsm} {
+          flex: 1 0 auto;
+          display: flex;
+          align-items: end;
         }
 
         .${classNames.articleOsm} time {
@@ -739,13 +756,7 @@
         }
 
         .${classNames.articleBody} {
-          margin-left: var(--overlay-main-gap);
-          margin-right: var(--overlay-main-gap-fat);
-        }
-
-        /* When alone in article */
-        .${classNames.article} > .${classNames.articleBody}:first-child {
-          margin-left: 0;
+          display: none;
         }
 
         .${classNames.controls} a {
@@ -768,6 +779,23 @@
 
         .${classNames.controls} a svg.stw-icon-play {
           padding-left: 3px;
+        }
+
+        @media screen and (width >= 576px) {
+          .${classNames.article} {
+            margin-right: auto;
+          }
+
+          .${classNames.articleBody} {
+            display: block;
+            margin-left: var(--overlay-main-gap);
+            margin-right: var(--overlay-main-gap-fat);
+          }
+
+          /* When alone in article */
+          .${classNames.article} > .${classNames.articleBody}:first-child {
+            margin-left: 0;
+          }
         }
       `)
 
@@ -793,6 +821,14 @@
           ? `<div class="${this.bem('main-heading')}">${tplContext.meta.title}</div>`
           : ''
 
+        if (tplContext.meta.byline) {
+          const bylineContent = typeof tplContext.meta.url === 'string'
+            ? `<a href="${tplContext.meta.url}" target="_blank">${tplContext.meta.byline}</a>`
+            : tplContext.meta.byline
+
+          headerContent += `<div class="${this.bem('byline')}">${bylineContent}</div>`
+        }
+
         if (tplContext.meta.dateCreated) {
           const createdAt = new Date(tplContext.meta.dateCreated)
           let formattedDate
@@ -815,13 +851,7 @@
             : ''
         }
 
-        let bodyContent = ''
-
-        if (tplContext.meta.byline) {
-          bodyContent += typeof tplContext.meta.url === 'string'
-            ? `<a href="${tplContext.meta.url}" target="_blank">${tplContext.meta.byline}</a>`
-            : `<span>${tplContext.meta.byline}</span>`
-        }
+        const bodyContent = ''
 
         const headerHtml = headerContent
           ? `<div class="${this.bem('article-header')}">${headerContent}</div>`
@@ -1070,7 +1100,7 @@
           font-family: "Inter", sans-serif;
           font-size: var(--fs-base);
           font-weight: ${fontWeightNormal};
-          line-height: 1.6;
+          line-height: 1.1;
         }
 
         .${classNames.root} a {
