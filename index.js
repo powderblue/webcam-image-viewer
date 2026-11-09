@@ -598,11 +598,17 @@
         this.getDomHelper().attachHtmlTo('after', this.createControlHtml(nextActionName), anchorTargetElem)
         anchorTargetElem.remove()
 
-        return
+        // return
       }
+    }
 
+    /**
+     * @private
+     * @param {MouseEvent} e
+     */
+    handleTap (e) {
       // Overlay, itself, tapped:
-      if (e.pointerType !== 'mouse' && e.target === this.getRootElem()) {
+      if (e.target === this.getRootElem()) {
         if (this.mainElemIsShown()) {
           this.hideMainElem()
         } else {
@@ -805,6 +811,7 @@
       this.getRootElem().addEventListener('mouseenter', this.handleMouseenter.bind(this))
       this.getRootElem().addEventListener('mouseleave', this.handleMouseleave.bind(this))
       this.getRootElem().addEventListener('click', this.handleClicked.bind(this))
+      this.getRootElem().addEventListener('mousedown', this.handleTap.bind(this))
     }
 
     /**
