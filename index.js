@@ -833,7 +833,7 @@
             ? `<a href="${tplContext.meta.url}" target="_blank">${tplContext.meta.byline}</a>`
             : tplContext.meta.byline
 
-          headerContent += `<div class="${this.bem('byline')}">${bylineContent}</div>`
+          headerContent += `<div class="${this.bem('byline')}">by ${bylineContent}</div>`
         }
 
         if (tplContext.meta.dateCreated) {
