@@ -18,7 +18,7 @@
     /**
      * @type {number}
      */
-    static MSECS_PER_DAY = 60 * 60 * 24 * 1000
+    static SECS_PER_DAY = 86400
 
     /**
      * Truncates in-place
@@ -834,7 +834,7 @@
           let formattedDate
 
           if (tplContext.meta.isOutdated) {
-            const ageDays = Math.floor((Date.now() - createdAt.getTime()) / DateTimeUtils.MSECS_PER_DAY)
+            const ageDays = Math.floor((Date.now() - createdAt.getTime()) / (DateTimeUtils.SECS_PER_DAY * 1000))
             formattedDate = `${Images.ICON_WARNING}<span>More than ${ageDays} days old</span>`
           } else {
             if (DateTimeUtils.dateIsToday(createdAt)) {
