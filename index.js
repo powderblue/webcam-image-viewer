@@ -1050,12 +1050,22 @@
         imageWrapper: this.bem('image-wrapper')
       }
 
-      const fontWeightNormal = 350
-      const fontWeightSemibold = 550
+      const googleFont = {
+        family: 'Inter',
+        sizes: {
+          normal: 350,
+          semibold: 550
+        },
+        createImportUrl: function () {
+          const sizesStr = Object.values(this.sizes).join(';')
+
+          return `https://fonts.googleapis.com/css2?family=${this.family}:wght@${sizesStr}&display=swap`
+        }
+      }
 
       // Includes base styles
       this.getDomHelper().addStylesheet(`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@${fontWeightNormal};${fontWeightSemibold}&display=swap');
+        @import url('${googleFont.createImportUrl()}');
 
         @keyframes fadeIn {
           from { opacity: 0; transform: scale(.97) }
@@ -1078,7 +1088,7 @@
           --fs-base: calc(1rem * var(--fs-multiplier-down));
           --fs-sm: calc(var(--fs-base) * var(--fs-multiplier-down));
 
-          --fw-semibold: ${fontWeightSemibold};
+          --fw-semibold: ${googleFont.sizes.semibold};
 
           --spacer-base: 1rem;
           --spacer-1: calc(var(--spacer-base) * 0.25);
@@ -1097,9 +1107,9 @@
 
           position: relative;
           overflow-x: auto;
-          font-family: "Inter", sans-serif;
+          font-family: "${googleFont.family}", sans-serif;
           font-size: var(--fs-base);
-          font-weight: ${fontWeightNormal};
+          font-weight: ${googleFont.sizes.normal};
           line-height: 1.1;
         }
 
