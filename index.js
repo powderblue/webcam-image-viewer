@@ -814,6 +814,7 @@
 
         .${classNames.root}.${Viewer.CN_FULLSCREEN} {
           position: fixed;
+          z-index: 9999999;
           left: 0;
           top: 0;
           width: 100vw;
