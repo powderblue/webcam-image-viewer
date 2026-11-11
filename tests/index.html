@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en-GB">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width">
+        <link rel="stylesheet" href="./test-page.css">
+        <title>Minimum Markup Test | Webcam Image Viewer | SeeTheWorld</title>
+        <style>
+            .container {
+                width: 100%;
+                max-width: 900px;
+                margin: 0 auto;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="container">
+
+            <!-- Example IDs: "133368"; "57bf7fe1a5d6f82088cb91929d27e6bf.jpg"; "32862" -->
+            <div
+                class="stw-wiv"
+                data-stw-image-id="133368"
+            ></div>
+
+            <!-- Add the Webcam Image Viewer JavaScript just once -->
+            <script src="../index.js"></script>
+
+        </div>
+    </body>
+</html>
