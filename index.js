@@ -1129,7 +1129,12 @@
           animation: fadeOut ease 0.3s;
           animation-fill-mode: forwards;
         `,
-        subtleLift: 'box-shadow: 0 1px 3px rgba(0, 0, 0, .3);'
+        subtleLift: 'box-shadow: 0 1px 3px rgba(0, 0, 0, .3);',
+        textTruncate: `
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        `
       }
 
       this.getDomHelper().addStylesheet(`
@@ -1183,6 +1188,7 @@
         .${classNames.article} {
           display: flex;
           align-items: center;
+          max-width: 210px;
           margin-left: var(--overlay-main-gap);
           margin-right: var(--overlay-main-gap-lg);
         }
@@ -1196,6 +1202,7 @@
           flex: 1 0 auto;
           display: flex;
           flex-direction: column;
+          width: 100%;  /* Needed for text-truncation to work */
           height: 100%;
         }
 
@@ -1205,6 +1212,7 @@
         }
 
         .${classNames.articleMainHeading} {
+          ${helpers.textTruncate}
           font-weight: var(--fw-semibold);
         }
 
@@ -1281,6 +1289,7 @@
 
         @media screen and (width >= 576px) {
           .${classNames.article} {
+            max-width: none;
             margin-right: auto;
           }
 
